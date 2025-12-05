@@ -12,15 +12,15 @@ blueprint:
       description: |
         The command pattern to trigger the automation.
         Examples: "Show front camera", "Display all cameras", "Show doorbell cam"
-      default: (Show | display) [the] ({camera} | all) (camera | cameras | cam | view | feed)
+      default: (mostra | mostra-me | exibe | abre) (a | as) ({câmara} | todas as câmaras | câmara | câmaras | vista | vídeo)
     response_single:
       name: Response Text (Single Camera)
       description: The response to give when showing a specific camera
-      default: Showing {{trigger.slots.camera}} camera
+      default: A mostrar a câmara {{trigger.slots.camera}}
     response_all:
       name: Response Text (All Cameras)
       description: The response to give when showing all cameras
-      default: Showing all configured cameras
+      default: A mostrar todas as câmaras configuradas
     cameras:
       name: Camera Configuration
       description: |
@@ -28,11 +28,18 @@ blueprint:
         Each camera entity is listed once with an array of possible names.
         Special name "all" is reserved for showing all cameras.
       default:
-        camera.doorbell:
-          - doorbell
-          - door
-        camera.driveway:
-          - driveway
+        camera.front:
+          - frente
+          - jardim
+          - casa
+        camera.garage_door_camera:
+          - piscina
+          - cozinha
+          - trás
+        camera.garage_gate_camera:
+          - garagem
+          - carro
+          - portão
       selector:
         object:
     view:
@@ -187,21 +194,21 @@ action:
                     data:
                       device: "{{ target_satellite_device }}"
                       path: "{{ view }}?show=configured&cameras={{ camera_entities_list }}{{ timeout_param }}"
-                  - set_conversation_response: "Camera '{{ requested_camera }}' not found. Showing configured cameras."
+                  - set_conversation_response: "A câmara '{{ requested_camera }}' não foi encontrada. A mostrar as câmaras configuradas."
                   - action: view_assist.set_state
                     target:
                       entity_id: "{{ target_satellite_device }}"
                     data:
-                      last_said: "Camera '{{ requested_camera }}' not found. Showing configured cameras."
+                      last_said: "A câmara '{{ requested_camera }}' não foi encontrada. A mostrar as câmaras configuradas."
               - conditions:
                   - condition: template
                     value_template: "{{ fallback_behavior == 'speak_error' }}"
                 sequence:
-                  - set_conversation_response: "Sorry, I couldn't find a camera named '{{ requested_camera }}'. Available cameras are: {% for entity, names in cameras.items() %}{{ names | join(', ') }}{% if not loop.last %}, {% endif %}{% endfor %}."
+                  - set_conversation_response: "Desculpa, não consegui encontrar uma câmara chamada '{{ requested_camera }}'. As câmaras disponíveis são: {% for entity, names in cameras.items() %}{{ names | join(', ') }}{% if not loop.last %}, {% endif %}{% endfor %}."
                   - action: view_assist.set_state
                     target:
                       entity_id: "{{ target_satellite_device }}"
                     data:
-                      last_said: "Camera '{{ requested_camera }}' not found."
+                      last_said: "A câmara '{{ requested_camera }}' não foi encontrada."
             default: []
 mode: single
